@@ -1,5 +1,39 @@
 # PyCX
 
+## Project: network epidemic baseline
+
+`net-epidemics.py` adds a fixed, undirected contact network, three age groups
+(`0-29`, `30-59`, `60+`), and random immunisation before a hypothetical SIR
+outbreak. Run the visualisation with:
+
+```bash
+.venv/bin/python net-epidemics.py
+```
+
+For numerical results without opening the GUI:
+
+```bash
+.venv/bin/python net-epidemics.py --headless --seed 42
+.venv/bin/python net-epidemics.py --headless --seed 42 --immunisation-fraction 0
+```
+
+The age proportions and contact weights near the top of the script are
+illustrative assumptions, not measured population or disease data. Younger
+agents have more expected contacts under these assumptions. Edges are fixed
+throughout an outbreak; drawing positions do not affect transmission.
+Transmission and recovery happen in synchronous, discrete steps.
+
+By default, 100 of 1,000 people are randomly immunised, with complete permanent
+immunity. Recovered and immunised people are counted separately, and total
+infections include the initial case. At least one person is left unvaccinated
+to seed an outbreak, even when coverage is set to 100%. A seed reproduces a
+run with the same settings; changing the policy or coverage does not guarantee
+the same initial infected person or epidemic random draws.
+
+This is the random-allocation baseline. A genetic algorithm allocating the
+same dose budget between age groups is a later step. The original moving-agent
+model remains available as `abm-epidemics.py`.
+
 PyCX is a Python-based sample code repository for complex systems
 research and education.
 
