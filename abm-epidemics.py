@@ -1,5 +1,6 @@
 import pycxsimulator
 from pylab import *
+from numpy.random import choice
 
 n = 1000            # number of agents
 v = 0.01            # speed of agent movement
@@ -9,6 +10,7 @@ k = int(1 / r) + 1  # number of bins in each spatial dimension
 
 p_inf = 0.5         # infection probability
 p_rec = 0.05        # recovery probability
+immunisation_fraction = 0.10  # fraction immunised before the outbreak
 
 class agent:
     def __init__(self):
@@ -26,10 +28,19 @@ class agent:
 def initialize():
     global agents, Scount, Icount, Rcount
     agents = [agent() for i in range(n)]
-    agents[0].s = 1
-    Scount = [n - 1]
+    
+    # State 2 gives complete, permanent immunity, just like recovery.
+    # Reserve at least one susceptible agent to start the outbreak.
+    budget = min(int(n * immunisation_fraction), n - 1)
+    vaccinated = choice(n, size=budget, replace=False)
+    for i in vaccinated:
+        agents[i].s = 2
+
+    susceptible = [i for i, a in enumerate(agents) if a.s == 0]
+    agents[choice(susceptible)].s = 1
+    Scount = [n - budget - 1]
     Icount = [1]
-    Rcount = [0]
+    Rcount = [budget]
 
 def observe():
     global agents, Scount, Icount, Rcount
@@ -42,7 +53,7 @@ def observe():
     cla()
     plot(Scount, label = 'Susceptible')
     plot(Icount, label = 'Infected')
-    plot(Rcount, label = 'Recovered')
+    plot(Rcount, label = 'Recovered / immunised')
     legend()
     tight_layout()
 
@@ -90,4 +101,5 @@ def update():
     Icount.append(len([a for a in agents if a.s == 1]))
     Rcount.append(len([a for a in agents if a.s == 2]))
 
-pycxsimulator.GUI().start(func=[initialize, observe, update])
+if __name__ == '__main__':
+    pycxsimulator.GUI().start(func=[initialize, observe, update])
